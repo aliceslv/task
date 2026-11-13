@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "439296087103",
+    "firebase_url": "https://kanbanmobile-atv-default-rtdb.firebaseio.com",
+    "project_id": "kanbanmobile-atv",
+    "storage_bucket": "kanbanmobile-atv.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:439296087103:android:86b6b462cb872f7597548a",
+        "android_client_info": {
+          "package_name": "com.alice.task"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcjVxiz4rF6ATZgcfh1sSgj8ijSYoKiLs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
