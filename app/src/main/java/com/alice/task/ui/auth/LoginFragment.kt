@@ -55,7 +55,6 @@ class LoginFragment : Fragment() {
                 Toast.makeText(requireContext(), "Preencha a senha!", Toast.LENGTH_SHORT).show()
             }
         } else {
-            // CORREÇÃO: Mensagem ajustada para o campo e-mail
             Toast.makeText(requireContext(), "Preencha o e-mail!", Toast.LENGTH_SHORT).show()
         }
     }

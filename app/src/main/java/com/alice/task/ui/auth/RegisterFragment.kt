@@ -41,7 +41,6 @@ class RegisterFragment : Fragment() {
                 .addOnCompleteListener {
                         task ->
                     if (task.isSuccessful){
-                        //direcionar para a tela home
                         findNavController().navigate(R.id.action_global_homeFragment)
                     }else{
                         binding.progressBar.isVisible = false

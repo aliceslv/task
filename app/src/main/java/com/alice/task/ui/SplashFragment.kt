@@ -42,10 +42,8 @@ class SplashFragment : Fragment() {
             val currentUser = auth.currentUser
 
             if(currentUser!=null){
-                //Logado
                 findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
             }else{
-                //Deslogado
                 findNavController().navigate(R.id.action_splashFragment_to_authentication)
             }
         }catch (e:Exception){
