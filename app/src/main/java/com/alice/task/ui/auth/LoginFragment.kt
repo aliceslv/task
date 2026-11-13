@@ -6,14 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.alice.task.R
 import com.alice.task.databinding.FragmentLoginBinding
-import com.alice.task.ui.BaseFragment
-import com.alice.task.util.FirebaseHelper
-import com.alice.task.util.showBottomSheet
+import com.google.firebase.auth.FirebaseAuth
 
-class LoginFragment : BaseFragment() {
+class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
@@ -50,7 +49,6 @@ class LoginFragment : BaseFragment() {
 
         if (email.isNotBlank()) {
             if (senha.isNotBlank()) {
-                hideKeyboard()
                 binding.progressBar.isVisible = true
                 loginUser(email, senha)
             } else {
@@ -64,18 +62,18 @@ class LoginFragment : BaseFragment() {
 
     private fun loginUser(email: String, password: String) {
         try {
-            FirebaseHelper.getAuth().signInWithEmailAndPassword(email, password)
+            FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         // Navega para a home apenas se o e-mail e senha forem válidos
                         findNavController().navigate(R.id.action_global_homeFragment)
                     } else {
                         binding.progressBar.isVisible = false
-                        showBottomSheet(
-                            message = getString(
-                                FirebaseHelper.validError(task.exception?.message.toString())
-                            )
-                        )
+                        Toast.makeText(
+                            requireContext(),
+                            task.exception?.localizedMessage ?: getString(R.string.error_generic),
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
         } catch (e: Exception) {

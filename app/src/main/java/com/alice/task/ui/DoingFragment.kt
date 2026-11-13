@@ -10,6 +10,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -18,10 +20,11 @@ import com.alice.task.data.model.Status
 import com.alice.task.data.model.Task
 import com.alice.task.databinding.FragmentDoingBinding
 import com.alice.task.ui.adapter.TaskAdapter
-import com.alice.task.util.FirebaseHelper
-import com.alice.task.util.showBottomSheet
 
 class DoingFragment : Fragment() {
+
+    private val database = FirebaseDatabase.getInstance().reference
+    private val userId get() = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     private var _binding: FragmentDoingBinding? = null
     private val binding get() = _binding!!
@@ -87,14 +90,7 @@ class DoingFragment : Fragment() {
                 updateTaskStatus(task)
             }
             TaskAdapter.SELECT_REMOVER -> {
-                showBottomSheet(
-                    titleDialog = R.string.text_title_dialog_delete,
-                    message = getString(R.string.text_message_dialog_delete),
-                    titleButton = R.string.text_button_dialog_confirm,
-                    onClick = {
-                        deleteTask(task)
-                    }
-                )
+                deleteTask(task)
             }
             TaskAdapter.SELECT_EDIT -> {
                 val action = HomeFragmentDirections.actionHomeFragmentToFormTaskFragment(task)
@@ -111,9 +107,9 @@ class DoingFragment : Fragment() {
     }
 
     private fun getTask() {
-        FirebaseHelper.getDatabase()
+        database
             .child("task")
-            .child(FirebaseHelper.getIdUser())
+            .child(userId)
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(p0: DataSnapshot) {
                     val taskList = mutableListOf<Task>()
@@ -137,9 +133,9 @@ class DoingFragment : Fragment() {
     }
 
     private fun deleteTask(task: Task) {
-        FirebaseHelper.getDatabase()
+        database
             .child("task")
-            .child(FirebaseHelper.getIdUser())
+            .child(userId)
             .child(task.id)
             .removeValue().addOnCompleteListener { result ->
                 if (result.isSuccessful) {
@@ -151,9 +147,9 @@ class DoingFragment : Fragment() {
     }
 
     private fun updateTaskStatus(task: Task) {
-        FirebaseHelper.getDatabase()
+        database
             .child("task")
-            .child(FirebaseHelper.getIdUser())
+            .child(userId)
             .child(task.id)
             .setValue(task).addOnCompleteListener { result ->
                 if (result.isSuccessful) {

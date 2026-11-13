@@ -9,11 +9,7 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import com.google.firebase.auth.FirebaseAuth
 import com.alice.task.R
-import com.alice.task.databinding.FragmentLoginBinding
 import com.alice.task.databinding.FragmentRecoverAccountBinding
-import com.alice.task.util.FirebaseHelper
-import com.alice.task.util.initToolbar
-import com.alice.task.util.showBottomSheet
 
 class RecoverAccountFragment : Fragment() {
 
@@ -32,8 +28,7 @@ class RecoverAccountFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        auth = FirebaseHelper.getAuth()
-        initToolbar(binding.toolbar)
+        auth = FirebaseAuth.getInstance()
         initListener()
     }
 
@@ -47,10 +42,10 @@ class RecoverAccountFragment : Fragment() {
         val email = binding.digiteEmail.text.toString().trim()
 
         if(email.isNotBlank()){
-            binding.progressBar.isVisible=true
-            Toast.makeText(requireContext(),"Tudo OK!", Toast.LENGTH_SHORT).show()
+            binding.progressBar.isVisible = true
+            recoverAccountUser(email)
         }else{
-            showBottomSheet(message = getString(R.string.email_empty))
+            Toast.makeText(requireContext(), getString(R.string.email_empty), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -60,13 +55,18 @@ class RecoverAccountFragment : Fragment() {
                 .addOnCompleteListener { task ->
                     binding.progressBar.isVisible = false
                     if (task.isSuccessful){
-                        showBottomSheet(message = "Um e-mail foi enviado para sua caixa de entrada com o l...")
+                        Toast.makeText(requireContext(), "Um e-mail de recuperação foi enviado.", Toast.LENGTH_LONG).show()
                     }else{
-                        showBottomSheet( message = getString( FirebaseHelper.validError( error = task.exception?.message.toString() ) ) )
+                        Toast.makeText(
+                            requireContext(),
+                            task.exception?.localizedMessage ?: getString(R.string.error_generic),
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
-        }catch ( e: Exception){
-            Toast.makeText(requireContext(),e.message.toString(),Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            binding.progressBar.isVisible = false
+            Toast.makeText(requireContext(), e.message ?: getString(R.string.error_generic), Toast.LENGTH_SHORT).show()
         }
     }
 

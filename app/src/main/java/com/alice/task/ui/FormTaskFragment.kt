@@ -10,20 +10,15 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.database
+import com.google.firebase.database.FirebaseDatabase
 import com.alice.task.R
 import com.alice.task.data.model.Status
 import com.alice.task.data.model.Task
 import com.alice.task.databinding.FragmentFormTaskBinding
-import com.alice.task.util.FirebaseHelper
-import com.alice.task.util.initToolbar
-import com.alice.task.util.showBottomSheet
 
 class FormTaskFragment : Fragment() {
+    private val database = FirebaseDatabase.getInstance().reference
     private var _binding: FragmentFormTaskBinding? = null
     private val binding get() = _binding!!
     private lateinit var task: Task
@@ -44,7 +39,6 @@ class FormTaskFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initToolbar(binding.toolbar)
 
         getArgs()
         initListener()
@@ -105,39 +99,45 @@ class FormTaskFragment : Fragment() {
         }
     }
 
-    private fun saveTask(){
-        val userId = FirebaseHelper.getIdUser()
-        if(userId==null){
-            showBottomSheet(message="Ocorreu um erro! Por favor tente novamente mais tarde")
+    private fun saveTask() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (userId == null) {
+            binding.progressBar.isVisible = false
+            Toast.makeText(requireContext(), "Usuário não autenticado.", Toast.LENGTH_SHORT).show()
             return
         }
-        binding.progressBar.isVisible=true
-        FirebaseHelper.getDatabase()
-            .child("task")
-            .child(FirebaseHelper.getIdUser())
+
+        if (newTask) {
+            task.id = database.child("task").child(userId).push().key ?: ""
+        }
+
+        if (task.id.isBlank()) {
+            binding.progressBar.isVisible = false
+            Toast.makeText(requireContext(), "Não foi possível gerar o ID da tarefa.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        database.child("task")
+            .child(userId)
             .child(task.id)
-            .setValue(task).addOnCompleteListener {
-                result->
-                if (result.isSuccessful){
+            .setValue(task)
+            .addOnCompleteListener { result ->
+                binding.progressBar.isVisible = false
+
+                if (result.isSuccessful) {
                     Toast.makeText(
                         requireContext(),
-                        "Registro gravado com sucesso.",
-                        Toast.LENGTH_SHORT).show()
-                    if(newTask) {
-                        findNavController().popBackStack()
-                    }else{
-                        Toast.makeText(
-                            requireContext(),
-                            "Tarefa atualizada com sucesso",
-                            Toast.LENGTH_SHORT
-                        )
-                    }
-
-                }else{
-                    binding.progressBar.isVisible=false
-                    val errorMessage = result.exception?.message
-                        ?: getString(R.string.error_generic)
-                    showBottomSheet(message="Erro ao registrar.")
+                        if (newTask) "Tarefa cadastrada com sucesso." else "Tarefa atualizada com sucesso.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    findNavController().popBackStack()
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        result.exception?.message ?: getString(R.string.error_generic),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
     }

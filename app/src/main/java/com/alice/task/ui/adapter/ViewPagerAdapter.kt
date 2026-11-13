@@ -5,7 +5,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import java.util.ArrayList
 
-class ViewPagerAdapter(fragmentActivity: FragmentActivity):
+class
+ViewPagerAdapter(fragmentActivity: FragmentActivity):
     FragmentStateAdapter(fragmentActivity){
         private val fragmentList: MutableList<Fragment> =ArrayList()
         private val titleList: MutableList<Int> = ArrayList()

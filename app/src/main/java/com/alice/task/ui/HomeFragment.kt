@@ -11,7 +11,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.alice.task.R
 import com.alice.task.databinding.FragmentHomeBinding
 import com.alice.task.ui.adapter.ViewPagerAdapter
-import com.alice.task.util.showBottomSheet
 
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding?=null
@@ -39,15 +38,8 @@ class HomeFragment : Fragment() {
 
     private fun initListeners() {
         binding.btnLogout.setOnClickListener {
-            showBottomSheet(
-                titleButton = R.string.text_button_dialog_confirm_logout,
-                titleDialog = R.string.text_title_dialog_confira_logout,
-                message = getString(R.string.text_message_dialog_confirm_logout),
-                onClick = {
-                    auth.signOut()
-                    findNavController().navigate(R.id.action_homeFragment_to_authentication)
-                }
-            )
+            auth.signOut()
+            findNavController().navigate(R.id.action_homeFragment_to_authentication)
         }
     }
 

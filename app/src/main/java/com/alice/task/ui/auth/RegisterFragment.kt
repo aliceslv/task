@@ -11,10 +11,6 @@ import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.alice.task.R
 import com.alice.task.databinding.FragmentRegisterBinding
-import com.alice.task.databinding.FragmentSplashBinding
-import com.alice.task.util.FirebaseHelper
-import com.alice.task.util.initToolbar
-import com.alice.task.util.showBottomSheet
 
 class RegisterFragment : Fragment() {
 
@@ -43,13 +39,17 @@ class RegisterFragment : Fragment() {
             val auth = FirebaseAuth.getInstance()
             auth.createUserWithEmailAndPassword(email,password)
                 .addOnCompleteListener {
-                    task ->
+                        task ->
                     if (task.isSuccessful){
                         //direcionar para a tela home
                         findNavController().navigate(R.id.action_global_homeFragment)
                     }else{
                         binding.progressBar.isVisible = false
-                        showBottomSheet(message = getString(FirebaseHelper.validError(task.exception?.message.toString())))
+                        Toast.makeText(
+                            requireContext(),
+                            task.exception?.localizedMessage ?: getString(R.string.error_generic),
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
         }catch (e: Exception){
@@ -59,7 +59,6 @@ class RegisterFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initToolbar(binding.toolbar)
         initListener()
     }
 
@@ -68,13 +67,13 @@ class RegisterFragment : Fragment() {
         val senha = binding.digiteSenha.text.toString().trim()
         if(email.isNotBlank()){
             if(senha.isNotBlank()){
-                binding.progressBar.isVisible = false
+                binding.progressBar.isVisible = true
                 registerUser(email,senha)
             }else{
                 Toast.makeText(requireContext(),"Preencha a senha!", Toast.LENGTH_SHORT).show()
             }
         }else{
-            Toast.makeText(requireContext(),"Preencha a senha!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(),"Preencha o e-mail!", Toast.LENGTH_SHORT).show()
         }
     }
 
